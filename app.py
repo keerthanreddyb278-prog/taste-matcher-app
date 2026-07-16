@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import json
 
 # Hide Streamlit Branding
 hide_menu_style = """
@@ -13,26 +14,26 @@ hide_menu_style = """
 st.set_page_config(page_title="TasteMatcher", page_icon="🤝", layout="wide")
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-# Google Form Submission Link (Data Input)
-FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe21fzu4vo6MJtU9kxtaPK2eaeReUFZgyJ8EAnkWxzpKPPDTA/formResponse"
+# Google Apps Script Web App URL (Direct Connection to Sheet)
+WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxSigBa9tUdXeg-tp0weXa5jdGbo1L5TdDQElC0D7-5yl3bK0wcta49csVzT0OJiyY8A/exec"
 
 # CSV Export URL of your Google Sheet to read REAL users
-# Note: Ensure your sheet is shared as "Anyone with link can view"
 GOOGLE_SHEET_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv"
 
 # Initialize Chat History in Session State
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = {}
 
-def send_data_to_sheet(name, h1, h2, h3):
-    form_data = {
-        "entry.2005620554": name,
-        "entry.1045781291": h1,
-        "entry.106504657": h2,
-        "entry.1166974658": h3
+def send_data_to_sheet_direct(name, h1, h2, h3):
+    payload = {
+        "name": name,
+        "h1": h1,
+        "h2": h2,
+        "h3": h3
     }
     try:
-        requests.post(FORM_URL, data=form_data)
+        # Sending JSON data to Google Apps Script
+        requests.post(WEB_APP_URL, data=json.dumps(payload))
     except:
         pass
 
@@ -56,8 +57,8 @@ with col1:
 
 with col2:
     if submit_btn and my_name and hobby2 and hobby3:
-        # 1. Save current user to the Google Sheet
-        send_data_to_sheet(my_name, hobby1, hobby2.strip(), hobby3.strip())
+        # 1. Save current user directly to the Google Sheet via Apps Script
+        send_data_to_sheet_direct(my_name, hobby1, hobby2.strip(), hobby3.strip())
         st.success(f"🎉 Thank you, {my_name}! Your profile has been created.")
         
         st.header("🎯 Real People with Similar Tastes")
@@ -66,7 +67,7 @@ with col2:
         # 2. Fetch REAL users from Google Sheet
         try:
             df = pd.read_csv(GOOGLE_SHEET_CSV)
-            # Standardizing column names based on your Google Form questions
+            # Standardizing column names
             df.columns = ['Timestamp', 'Name', 'Hobby-1', 'Hobby-2', 'Hobby-3']
             
             found = False
@@ -89,7 +90,6 @@ with col2:
                     # Real-time Simulation Chat Box
                     st.write(f"💬 **Chat with {match_name}:**")
                     
-                    # Display chat history for this specific match
                     chat_key = f"{my_name}_to_{match_name}"
                     if chat_key in st.session_state.chat_history:
                         for msg in st.session_state.chat_history[chat_key]:
@@ -101,11 +101,10 @@ with col2:
                             if chat_key not in st.session_state.chat_history:
                                 st.session_state.chat_history[chat_key] = []
                             
-                            # Save sender message
                             st.session_state.chat_history[chat_key].append({"role": "user", "text": f"{my_name}: {chat_input}"})
                             st.chat_message("user").write(f"{my_name}: {chat_input}")
                             
-                            # Note: No automatic reply from computer here. 
+                            # Real Person logic (No auto-reply)
                             st.warning(f"Message sent! Waiting for {match_name} to reply...")
                     st.divider()
                     
