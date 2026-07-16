@@ -2,15 +2,15 @@ import streamlit as st
 import pandas as pd
 import requests, json
 
-# 1. Paste your 3 links here
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwMVL7Ll_xqn4NUPngdDc7nzPX9JGwA03iIlqSNvq5ulvusmaEFSdPv48y8tLHqXz_reg/exec"
+
 PROFILE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAw6ZRGuLMR1wthExoTLZmXC1Y-RA7zE6h1EOYeVKLQv54fQw5XdbHzcMjWxE7636H8ATU9Q7CJdFb/pub?gid=0&single=true&output=csv"
-CHAT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAw6ZRGuLMR1wthExoTLZmXC1Y-RA7zE6h1EOYeVKLQv54fQw5XdbHzcMjWxE7636H8ATU9Q7CJdFb/pub?gid=573018232&single=true&output=csv"
+CHAT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAw6ZRGuLMR1wthExoTLZmXC1Y-RA7zE6h1EOYeVKLQv54fQw5XdbHzcMjWxE7636H8ATU9Q7CJdFb/pubhtml?gid=573018232&single=true"
 
 st.title("🤝 TasteMatcher Pro")
 
-# 2. Profile Creation
-with st.form("profile_setup"):
+# Profile Form
+with st.form("profile_form"):
     st.subheader("Create Your Profile")
     name = st.text_input("Name")
     hobby = st.text_input("Hobby")
@@ -19,23 +19,24 @@ with st.form("profile_setup"):
     
     if st.form_submit_button("Save Profile"):
         payload = {"type": "profile", "name": name, "hobby": hobby, "food": food, "game": game}
-        requests.post(WEB_APP_URL, data=json.dumps(payload))
-        st.success(f"Profile saved for {name}!")
+        response = requests.post(WEB_APP_URL, data=json.dumps(payload))
+        st.success("Profile saved successfully!")
 
-# 3. Matching Logic
-st.subheader("Find Friends with Similar Interests")
+# Search and Chat
+st.subheader("Search & Chat")
 try:
     df = pd.read_csv(PROFILE_CSV_URL)
-    my_hobby = st.text_input("Enter your hobby:")
-    my_food = st.text_input("Enter your favorite food:")
-    my_game = st.text_input("Enter your favorite game:")
-
+    
+    # Input for searching
+    search_hobby = st.text_input("Enter Hobby to search:")
+    search_food = st.text_input("Enter Food to search:")
+    search_game = st.text_input("Enter Game to search:")
+    
     if st.button("Find Matches"):
-        # Match only if all 3 fields match
         matches = df[
-            (df['Hobby'].str.lower() == my_hobby.lower()) & 
-            (df['Food'].str.lower() == my_food.lower()) & 
-            (df['Game'].str.lower() == my_game.lower())
+            (df['Hobby'].str.lower() == search_hobby.lower()) & 
+            (df['Food'].str.lower() == search_food.lower()) & 
+            (df['Game'].str.lower() == search_game.lower())
         ]
         
         if not matches.empty:
@@ -46,15 +47,15 @@ try:
                     if st.button(f"Send to {row['Name']}", key=f"btn_{row['Name']}"):
                         payload = {"type": "chat", "sender": name, "receiver": row['Name'], "message": msg}
                         requests.post(WEB_APP_URL, data=json.dumps(payload))
-                        st.success("Message sent successfully!")
+                        st.success("Message sent!")
         else:
-            st.info("No perfect matches found yet.")
+            st.info("No matches found.")
 
-    # 4. Inbox
-    st.subheader("📩 My Inbox")
+    # Inbox
+    st.subheader("📩 Inbox")
     chats = pd.read_csv(CHAT_CSV_URL)
     my_inbox = chats[chats['receiver'] == name]
     st.table(my_inbox[['sender', 'message']])
 
-except Exception:
-    st.write("Loading data... Please ensure your Google Sheet links are public.")
+except:
+    st.write("Data loading... (Make sure your CSV links are correct and public)")
