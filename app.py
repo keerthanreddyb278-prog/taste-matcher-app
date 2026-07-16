@@ -3,42 +3,45 @@ import pandas as pd
 import requests
 import json
 
-# 👇 PASTE YOUR NEW WEB APP URL BELOW BETWEEN THE QUOTES
+# --- CONFIGURATION ---
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDCkEKPo2fldOQ-fA-GirKk9AjF5gpIDVeZIGiskTUSIUtwF8YiUSkeXLF2js5Tskruw/exec"
-# YOUR GOOGLE SHEET LINKS
-PROFILES_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid=0"
-CHATS_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid=1040764631"
+PROFILES_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid=2115379032"
 
-def send_profile_to_sheet(name, h1, h2, h3):
-    payload = {"type": "profile", "name": name, "h1": h1, "h2": h2, "h3": h3}
-    try: requests.post(WEB_APP_URL, data=json.dumps(payload))
-    except: pass
+# PASTE YOUR CHAT SHEET GID BELOW (Between the quotes)
+CHAT_GID = "1040764631" 
+CHATS_CSV = f"https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid={CHAT_GID}"
 
-def send_message_to_sheet(sender, receiver, message):
-    payload = {"type": "chat", "sender": sender, "receiver": receiver, "message": message}
-    try: requests.post(WEB_APP_URL, data=json.dumps(payload))
-    except: pass
+st.title("🤝 TasteMatcher Pro")
 
-st.title("🤝 TasteMatcher")
-
-# User Input Section
+# 1. Profile Section
 my_name = st.text_input("Enter your Name:")
-hobby1 = st.selectbox("Select Hobby:", ["Cricket", "Coding", "Movies", "Books"])
-hobby2 = st.text_input("Enter your favorite Food:")
-hobby3 = st.text_input("Enter your favorite Movie Genre:")
-
-if st.button("Find My Match! 🚀"):
-    send_profile_to_sheet(my_name, hobby1, hobby2, hobby3)
+if st.button("Save Profile"):
+    requests.post(WEB_APP_URL, data=json.dumps({"type": "profile", "name": my_name}))
     st.success("Profile saved successfully!")
 
-# Auto-refresh and display matches
-st.divider()
-st.subheader("🎯 Real People with Similar Tastes")
-
+# 2. Match and Chat Section
+st.subheader("🎯 Matches & Chat")
 try:
     df = pd.read_csv(PROFILES_CSV)
-    df.columns = ['Timestamp', 'Name', 'Hobby-1', 'Hobby-2', 'Hobby-3']
-    st.write("Live Database Connected!")
-    st.dataframe(df) # Shows that data is loading
+    chats = pd.read_csv(CHATS_CSV)
+    
+    # Filter for other people
+    others = df[df['Name'] != my_name]
+    
+    for name in others['Name'].unique():
+        st.write(f"✅ Chat with {name}:")
+        
+        # Display existing chat history
+        my_chats = chats[(chats['sender'] == name) & (chats['receiver'] == my_name)]
+        for m in my_chats['message']:
+            st.write(f"💬 {name}: {m}")
+            
+        # Input to send a new message
+        msg = st.chat_input(f"Send message to {name}")
+        if msg:
+            payload = {"type": "chat", "sender": my_name, "receiver": name, "message": msg}
+            requests.post(WEB_APP_URL, data=json.dumps(payload))
+            st.rerun() # Refresh to show the new message immediately
+
 except Exception as e:
-    st.error("Connecting to database... Please ensure your Google Sheet is set to 'Anyone with the link'.")
+    st.info("Loading database... Please ensure your Google Sheet is public.")
