@@ -5,7 +5,6 @@ import json
 
 # 👇 PASTE YOUR NEW WEB APP URL BELOW BETWEEN THE QUOTES
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDCkEKPo2fldOQ-fA-GirKk9AjF5gpIDVeZIGiskTUSIUtwF8YiUSkeXLF2js5Tskruw/exec"
-
 # YOUR GOOGLE SHEET LINKS
 PROFILES_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid=0"
 CHATS_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid=1040764631"
