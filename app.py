@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests, json
 
-WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwMVL7Ll_xqn4NUPngdDc7nzPX9JGwA03iIlqSNvq5ulvusmaEFSdPv48y8tLHqXz_reg/exec"
+WEB_APP_URL = "https://docs.google.com/spreadsheets/d/17Nk-bP4lqs9qpaYQisUb6ndI3VGQU3up6YwzpoQTSzA/edit?gid=0#gid=0"
 
 PROFILE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAw6ZRGuLMR1wthExoTLZmXC1Y-RA7zE6h1EOYeVKLQv54fQw5XdbHzcMjWxE7636H8ATU9Q7CJdFb/pub?gid=0&single=true&output=csv"
 CHAT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAw6ZRGuLMR1wthExoTLZmXC1Y-RA7zE6h1EOYeVKLQv54fQw5XdbHzcMjWxE7636H8ATU9Q7CJdFb/pubhtml?gid=573018232&single=true"
