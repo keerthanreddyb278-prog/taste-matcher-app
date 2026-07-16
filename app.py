@@ -15,7 +15,7 @@ hide_menu_style = """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 # ⚠️ IMPORTANT: Paste your NEW Google Web App URL link from Step 1 inside the quotes below
-WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxSigBa9tUdXeg-tp0weXa5jdGbo1L5TdDQElC0D7-5yl3bK0wcta49csVzT0OJiyY8A/exec"
+WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXyNV9NjWElpShMAsjmEDNwCARWnMUVzFPGKxkQ0UWKvcEa-M1g6yQUkmkFUNwZF3h8g/exec"
 
 # Google Sheet CSV Links for Profiles (gid=0) and Chats (gid=1040764631)
 PROFILES_CSV = "https://docs.google.com/spreadsheets/d/1NgCTYGiGk8TTV1wD29M6j1w49T3h-uBkGI3Ps2Gouf0/export?format=csv&gid=0"
